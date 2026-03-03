@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BalanceMate – AI Work-Life Balance Coach</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="js/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ── Header ───────────────────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header__inner">
+      <div class="header__brand">
+        <span class="header__logo">⚖️</span>
+        <h1 class="header__title">BalanceMate</h1>
+        <span class="header__subtitle">AI Work-Life Coach</span>
+      </div>
+      <nav class="header__nav" aria-label="Main navigation">
+        <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+        <button class="nav-btn" data-tab="summary">Daily Summary</button>
+        <button class="nav-btn" data-tab="settings">Settings</button>
+      </nav>
+      <div class="header__status">
+        <span id="status-dot" class="status-dot status-dot--active" aria-hidden="true"></span>
+        <span id="status-text">Tracking active</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- ── Dashboard Tab ────────────────────────────────────────────────── -->
+    <section id="tab-dashboard" class="tab tab--active" aria-labelledby="nav-dashboard">
+      <div class="grid">
+
+        <!-- Current Session -->
+        <div class="card card--highlight">
+          <div class="card__header">
+            <h2 class="card__title">Current Session</h2>
+            <span id="session-badge" class="badge badge--work">Working</span>
+          </div>
+          <div class="session-timer">
+            <div class="timer" id="session-timer" aria-live="polite">00:00:00</div>
+            <p class="timer-label" id="timer-label">Deep focus in progress</p>
+          </div>
+          <div class="session-controls">
+            <button class="btn btn--primary" id="btn-break">Take a Break</button>
+            <button class="btn btn--secondary" id="btn-resume" style="display:none">Resume Work</button>
+          </div>
+        </div>
+
+        <!-- AI Suggestion -->
+        <div class="card card--suggestion">
+          <div class="card__header">
+            <h2 class="card__title">AI Recommendation</h2>
+            <span class="badge badge--ai">AI</span>
+          </div>
+          <div id="suggestion-content">
+            <div class="suggestion-icon" id="suggestion-icon" aria-hidden="true">✅</div>
+            <p class="suggestion-text" id="suggestion-text">Loading recommendations…</p>
+          </div>
+          <div class="suggestion-actions">
+            <button class="btn btn--sm btn--accept" id="btn-accept-suggestion">Accept</button>
+            <button class="btn btn--sm btn--dismiss" id="btn-dismiss-suggestion">Dismiss</button>
+          </div>
+        </div>
+
+        <!-- Today's Stats -->
+        <div class="card">
+          <div class="card__header">
+            <h2 class="card__title">Today's Stats</h2>
+          </div>
+          <div class="stats-grid">
+            <div class="stat">
+              <div class="stat__value" id="stat-work-time">0m</div>
+              <div class="stat__label">Focus Time</div>
+            </div>
+            <div class="stat">
+              <div class="stat__value" id="stat-breaks">0</div>
+              <div class="stat__label">Breaks Taken</div>
+            </div>
+            <div class="stat">
+              <div class="stat__value" id="stat-switches">0</div>
+              <div class="stat__label">Context Switches</div>
+            </div>
+            <div class="stat">
+              <div class="stat__value" id="stat-focus-score">–</div>
+              <div class="stat__label">Focus Score</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Rhythm Chart -->
+        <div class="card card--wide">
+          <div class="card__header">
+            <h2 class="card__title">Work Rhythm Today</h2>
+            <span class="card__subtitle">Hourly activity (seconds tracked)</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="rhythm-chart" aria-label="Hourly work activity chart"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Daily Summary Tab ─────────────────────────────────────────────── -->
+    <section id="tab-summary" class="tab" aria-labelledby="nav-summary">
+      <div class="grid grid--single">
+        <div class="card">
+          <div class="card__header">
+            <h2 class="card__title">Daily Summary</h2>
+            <input type="date" id="summary-date" class="date-input" aria-label="Select summary date" />
+          </div>
+          <div id="summary-content">
+            <p class="loading">Loading summary…</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Settings Tab ──────────────────────────────────────────────────── -->
+    <section id="tab-settings" class="tab" aria-labelledby="nav-settings">
+      <div class="grid grid--single">
+        <div class="card">
+          <div class="card__header">
+            <h2 class="card__title">Personalization Settings</h2>
+          </div>
+          <form id="settings-form" class="settings-form" novalidate>
+
+            <div class="form-group">
+              <label for="s-user-name">Your Name</label>
+              <input id="s-user-name" type="text" name="user_name" placeholder="Enter your name" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="s-short-break-interval">Short Break Interval (min)</label>
+                <input id="s-short-break-interval" type="number" name="short_break_interval_min"
+                  min="10" max="60" value="25" />
+              </div>
+              <div class="form-group">
+                <label for="s-long-break-interval">Long Break Interval (min)</label>
+                <input id="s-long-break-interval" type="number" name="long_break_interval_min"
+                  min="45" max="180" value="90" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="s-short-break-dur">Short Break Duration (min)</label>
+                <input id="s-short-break-dur" type="number" name="short_break_duration_min"
+                  min="3" max="15" value="5" />
+              </div>
+              <div class="form-group">
+                <label for="s-long-break-dur">Long Break Duration (min)</label>
+                <input id="s-long-break-dur" type="number" name="long_break_duration_min"
+                  min="10" max="30" value="15" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="s-work-style">Work Style</label>
+              <select id="s-work-style" name="work_style">
+                <option value="deep-focus">Deep Focus (fewer interruptions)</option>
+                <option value="balanced" selected>Balanced (recommended)</option>
+                <option value="collaborative">Collaborative (more flexibility)</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="s-work-start">Work Start Hour</label>
+                <input id="s-work-start" type="number" name="work_start_hour"
+                  min="0" max="12" value="9" />
+              </div>
+              <div class="form-group">
+                <label for="s-work-end">Work End Hour</label>
+                <input id="s-work-end" type="number" name="work_end_hour"
+                  min="12" max="23" value="18" />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn--primary">Save Settings</button>
+              <span id="settings-saved" class="save-indicator" aria-live="polite" style="display:none">
+                ✅ Settings saved!
+              </span>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Break Notification Banner ────────────────────────────────────────── -->
+  <div id="break-notification" class="notification" role="alert" style="display:none">
+    <span id="notification-icon" aria-hidden="true">☕</span>
+    <span id="notification-message">Time for a break!</span>
+    <button class="notification-close" id="notification-close" aria-label="Dismiss notification">×</button>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
